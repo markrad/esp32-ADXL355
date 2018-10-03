@@ -163,6 +163,7 @@ public:
     // Output must be 96 entries
     int ReadFifoEntries(long *output);
 	static double ValueToGals(int32_t rawValue, int decimals = 3);
+	static int64_t ValueToGalsInt(int32_t rawValue, int decimals = 3);
 private:
 	esp_err_t ReadByte(uint8_t reg, uint8_t *data);
 	esp_err_t WriteByte(uint8_t reg, uint8_t data);

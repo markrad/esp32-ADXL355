@@ -1,15 +1,16 @@
 #include "ADXL355.h"
 
+//#define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <iostream>
 #include <string>
-#include <iomanip>
 #include <cmath>
 #include <cstring>
 
 using namespace std;
+
+static const char *TAG = "ADXL355";
 
 ADXL355::ADXL355(uint8_t deviceAddress, gpio_num_t sdaPin, gpio_num_t sclPin) 
 	: _deviceAddress(deviceAddress), _sdaPin(sdaPin), _sclPin(sclPin)
@@ -534,7 +535,7 @@ esp_err_t ADXL355::CheckEspRc(const string &message, esp_err_t rc)
 	if (rc != 0)
 	{
 		char buf[100];
-		cout << message << "0x" << hex << rc << dec << " = " << esp_err_to_name_r(rc, buf, sizeof(buf)) << endl;
+		ESP_LOGE(TAG, "%s 0x%04x = %s", message.c_str(), rc, esp_err_to_name_r(rc, buf, sizeof(buf)));
 	}
 	
 	return rc;
@@ -554,5 +555,15 @@ double ADXL355::ValueToGals(int32_t rawValue, int decimals)
     result = round(result * slider) / slider;
 
     return result;
+}
+
+int64_t ADXL355::ValueToGalsInt(int32_t rawValue, int decimals)
+{
+    double slider = (decimals > 1)? pow(10.0, (double)decimals) : 1.0;
+	double work = ValueToGals(rawValue, decimals);
+	int64_t asInt = (int64_t)(work * slider);
+	ESP_LOGD(TAG, "f=%f;i=%lld", work, asInt);
+	
+	return asInt;
 }
 
